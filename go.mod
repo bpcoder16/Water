@@ -2,7 +2,10 @@ module github.com/bpcoder16/Water
 
 go 1.22.0
 
-require github.com/spf13/viper v1.18.2
+require (
+	github.com/spf13/viper v1.18.2
+	golang.org/x/sync v0.7.0
+)
 
 require (
 	github.com/fsnotify/fsnotify v1.7.0 // indirect

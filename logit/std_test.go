@@ -1,4 +1,4 @@
-package log
+package logit
 
 import (
 	"bytes"
@@ -35,10 +35,10 @@ func TestStdLoggerLog(t *testing.T) {
 
 	err := eg.Wait()
 	if err != nil {
-		t.Fatal("log error", err)
+		t.Fatal("logit error", err)
 	}
 
 	if s := b.String(); s != "INFO msg=a k=v\nINFO msg=a k=v\n" {
-		t.Fatalf("log not match: %q", s)
+		t.Fatalf("logit not match: %q", s)
 	}
 }

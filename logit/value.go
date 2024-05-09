@@ -1,4 +1,4 @@
-package log
+package logit
 
 import (
 	"context"
@@ -16,7 +16,7 @@ var (
 	DefaultTimestamp = Timestamp(time.RFC3339)
 )
 
-// Valuer is returns a log value.
+// Valuer is returns a logit value.
 type Valuer func(ctx context.Context) interface{}
 
 // Value return the function value.

@@ -1,46 +1,78 @@
 package zap
 
 import (
-	"fmt"
-	"github.com/bpcoder16/Water/log"
 	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
+	"io"
+	"time"
 )
 
-var _ log.Logger = (*Logger)(nil)
+type EncoderType int8
 
-type Logger struct {
-	log    *zap.Logger
-	msgKey string
+const (
+	JSONEncoder EncoderType = iota
+	ConsoleEncoder
+)
+
+func getEncoderConfig() zapcore.EncoderConfig {
+	return zapcore.EncoderConfig{
+		TimeKey:       "time",
+		MessageKey:    "msg",
+		LevelKey:      "level",
+		NameKey:       "logger",
+		CallerKey:     "caller",
+		StacktraceKey: "stacktrace",
+		LineEnding:    zapcore.DefaultLineEnding,
+		EncodeLevel:   zapcore.CapitalLevelEncoder,
+		EncodeTime: func(t time.Time, encoder zapcore.PrimitiveArrayEncoder) {
+			encoder.AppendString(t.Format(time.DateTime + ".000"))
+		},
+		EncodeDuration: zapcore.SecondsDurationEncoder,
+		EncodeCaller:   zapcore.FullCallerEncoder,
+	}
 }
 
-func (l *Logger) Log(level log.Level, keyValues ...interface{}) error {
-	keyValuesLen := len(keyValues)
-	if keyValuesLen == 0 || keyValuesLen%2 != 0 {
-		l.log.Warn(fmt.Sprint("keyValues must appear in pairs: ", keyValues))
-		return nil
+func getEncoder(encoderType EncoderType) zapcore.Encoder {
+	switch encoderType {
+	case JSONEncoder:
+		return zapcore.NewJSONEncoder(getEncoderConfig())
+	case ConsoleEncoder:
+		return zapcore.NewConsoleEncoder(getEncoderConfig())
 	}
+	return zapcore.NewConsoleEncoder(getEncoderConfig())
+}
 
-	data := make([]zap.Field, 0, (keyValuesLen/2)+1)
-	var msg string
-	for i := 0; i < keyValuesLen; i += 2 {
-		if keyValues[i].(string) == l.msgKey {
-			msg, _ = keyValues[i+1].(string)
-			continue
-		}
-		data = append(data, zap.Any(fmt.Sprint(keyValues[i]), keyValues[i+1]))
-	}
+func NewZapLogger(w io.Writer) *zap.Logger {
+	return zap.New(
+		zapcore.NewTee(
+			zapcore.NewCore(
+				getEncoder(JSONEncoder),
+				zapcore.AddSync(w),
+				zap.LevelEnablerFunc(func(lvl zapcore.Level) bool {
+					return true
+				}),
+			),
+		),
+	)
+}
 
-	switch level {
-	case log.LevelDebug:
-		l.log.Debug(msg, data...)
-	case log.LevelInfo:
-		l.log.Info(msg, data...)
-	case log.LevelWarn:
-		l.log.Warn(msg, data...)
-	case log.LevelError:
-		l.log.Error(msg, data...)
-	case log.LevelFatal:
-		l.log.Fatal(msg, data...)
-	}
-	return nil
+func NewWaterZapLogger(debugInfoWriter, warnErrorFatalWriter io.Writer) *zap.Logger {
+	return zap.New(
+		zapcore.NewTee(
+			zapcore.NewCore(
+				getEncoder(JSONEncoder),
+				zapcore.AddSync(debugInfoWriter),
+				zap.LevelEnablerFunc(func(lvl zapcore.Level) bool {
+					return lvl < zapcore.WarnLevel
+				}),
+			),
+			zapcore.NewCore(
+				getEncoder(JSONEncoder),
+				zapcore.AddSync(warnErrorFatalWriter),
+				zap.LevelEnablerFunc(func(lvl zapcore.Level) bool {
+					return lvl >= zapcore.WarnLevel
+				}),
+			),
+		),
+	)
 }

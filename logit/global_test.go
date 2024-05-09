@@ -1,4 +1,4 @@
-package log
+package logit
 
 import (
 	"bytes"
@@ -52,34 +52,34 @@ func TestGlobalLog(t *testing.T) {
 			expected = append(expected, fmt.Sprintf("%s msg=%s", "DEBUG", msg))
 			DebugF(testCase.content[0].(string), testCase.content[1:]...)
 			expected = append(expected, fmt.Sprintf("%s msg=%s", "DEBUG", msg))
-			DebugW("log", msg)
-			expected = append(expected, fmt.Sprintf("%s log=%s", "DEBUG", msg))
+			DebugW("logit", msg)
+			expected = append(expected, fmt.Sprintf("%s logit=%s", "DEBUG", msg))
 		case LevelInfo:
 			Info(msg)
 			expected = append(expected, fmt.Sprintf("%s msg=%s", "INFO", msg))
 			InfoF(testCase.content[0].(string), testCase.content[1:]...)
 			expected = append(expected, fmt.Sprintf("%s msg=%s", "INFO", msg))
-			InfoW("log", msg)
-			expected = append(expected, fmt.Sprintf("%s log=%s", "INFO", msg))
+			InfoW("logit", msg)
+			expected = append(expected, fmt.Sprintf("%s logit=%s", "INFO", msg))
 		case LevelWarn:
 			Warn(msg)
 			expected = append(expected, fmt.Sprintf("%s msg=%s", "WARN", msg))
 			WarnF(testCase.content[0].(string), testCase.content[1:]...)
 			expected = append(expected, fmt.Sprintf("%s msg=%s", "WARN", msg))
-			WarnW("log", msg)
-			expected = append(expected, fmt.Sprintf("%s log=%s", "WARN", msg))
+			WarnW("logit", msg)
+			expected = append(expected, fmt.Sprintf("%s logit=%s", "WARN", msg))
 		case LevelError:
 			Error(msg)
 			expected = append(expected, fmt.Sprintf("%s msg=%s", "ERROR", msg))
 			ErrorF(testCase.content[0].(string), testCase.content[1:]...)
 			expected = append(expected, fmt.Sprintf("%s msg=%s", "ERROR", msg))
-			ErrorW("log", msg)
-			expected = append(expected, fmt.Sprintf("%s log=%s", "ERROR", msg))
+			ErrorW("logit", msg)
+			expected = append(expected, fmt.Sprintf("%s logit=%s", "ERROR", msg))
 		default:
 		}
 	}
-	_ = Log(LevelInfo, DefaultMessageKey, "test log")
-	expected = append(expected, fmt.Sprintf("%s msg=%s", "INFO", "test log"))
+	_ = Log(LevelInfo, DefaultMessageKey, "test logit")
+	expected = append(expected, fmt.Sprintf("%s msg=%s", "INFO", "test logit"))
 
 	expected = append(expected, "")
 

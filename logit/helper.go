@@ -1,4 +1,4 @@
-package log
+package logit
 
 import (
 	"context"
@@ -75,7 +75,7 @@ func (h *Helper) Enabled(level Level) bool {
 	return true
 }
 
-// Log Print log by level and keyValues
+// Log Print logit by level and keyValues
 func (h *Helper) Log(level Level, keyValues ...interface{}) error {
 	return h.logger.Log(level, keyValues...)
 }

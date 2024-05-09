@@ -1,4 +1,4 @@
-package log
+package logit
 
 // FilterOption is filter option.
 type FilterOption func(*Filter)
@@ -14,12 +14,12 @@ type Filter struct {
 	filter func(level Level, keyValues ...interface{}) bool
 }
 
-// Log Print log by level and keyValues
+// Log Print logit by level and keyValues
 func (f *Filter) Log(level Level, keyValues ...interface{}) error {
 	if level < f.level {
 		return nil
 	}
-	// prefixKeyValues contains the slice of arguments defined as prefixes during the log initialization
+	// prefixKeyValues contains the slice of arguments defined as prefixes during the logit initialization
 	var prefixKeyValues []interface{}
 	if l, ok := f.logger.(*wLogger); ok && len(l.prefix) > 0 {
 		prefixKeyValues = make([]interface{}, 0, len(l.prefix))

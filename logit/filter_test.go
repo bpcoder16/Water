@@ -1,4 +1,4 @@
-package log
+package logit
 
 import (
 	"bytes"
@@ -35,7 +35,7 @@ func TestFilterAll(t *testing.T) {
 	logger.InfoF("hello %s", "world")
 	logger.InfoW("username", "water")
 	logger.InfoW("password", "123456")
-	logger.Warn("warn log")
+	logger.Warn("warn logit")
 }
 
 func TestFilterLevel(t *testing.T) {

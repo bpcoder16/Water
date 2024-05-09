@@ -1,4 +1,4 @@
-package log
+package logit
 
 import "testing"
 

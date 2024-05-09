@@ -1,4 +1,4 @@
-package log
+package logit
 
 import "testing"
 
@@ -10,11 +10,11 @@ func TestHelper(t *testing.T) {
 	_ = logger.Log(LevelDebug, "msg", "test debug")
 	logger.Debug("test debug")
 	logger.DebugF("test %s", "debug")
-	logger.DebugW("log", "test debug")
+	logger.DebugW("logit", "test debug")
 
 	logger.Warn("test warn")
 	logger.WarnF("test %s", "warn")
-	logger.WarnW("log", "test debug")
+	logger.WarnW("logit", "test debug")
 }
 
 func TestHelperWithMsgKey(t *testing.T) {
@@ -24,7 +24,7 @@ func TestHelperWithMsgKey(t *testing.T) {
 	)
 
 	logger.DebugF("test %s", "debug")
-	logger.DebugW("log", "test debug")
+	logger.DebugW("logit", "test debug")
 }
 
 func TestHelperLevel(t *testing.T) {
@@ -36,5 +36,5 @@ func TestHelperLevel(t *testing.T) {
 	logger.Warn("Warn")
 	logger.Error("Error")
 	logger.ErrorF("test %s", "error")
-	logger.ErrorW("log", "test error")
+	logger.ErrorW("logit", "test error")
 }

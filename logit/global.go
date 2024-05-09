@@ -1,4 +1,4 @@
-package log
+package logit
 
 import (
 	"context"
@@ -35,7 +35,7 @@ func SetLogger(logger Logger) {
 	global.SetLogger(logger)
 }
 
-// Log Print log by level and keyValues.
+// Log Print logit by level and keyValues.
 func Log(level Level, keyValues ...interface{}) error {
 	return global.helper.Log(level, keyValues...)
 }
@@ -80,12 +80,12 @@ func Warn(a ...interface{}) {
 	global.helper.Warn(a...)
 }
 
-// WarnF logs a message at warnf level.
+// WarnF logs a message at warn level.
 func WarnF(format string, a ...interface{}) {
 	global.helper.WarnF(format, a...)
 }
 
-// WarnW logs a message at warnf level.
+// WarnW logs a message at warn level.
 func WarnW(keyValues ...interface{}) {
 	global.helper.WarnW(keyValues...)
 }

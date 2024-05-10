@@ -11,10 +11,12 @@ func AppName() string {
 }
 
 // RunMode (全局) 程序运行等级
-// 返回值 RunModeRelease 、RunModeDebug 、RunModeTest 之一
-//
-// 默认值可通过环境变量 GDP_ENV_RunMode 来设置:
-// 只能设置 'debug'、'test'、'release' 之一,若是其他值，默认值会是 'release'
+// 返回值 release 、test 、debug 之一
+// 只能设置 'debug'、'test'、'release' 之一, 若是其他值，默认值会是 'debug'
 func RunMode() string {
 	return Default.RunMode()
+}
+
+func RootPath() string {
+	return Default.RootPath()
 }

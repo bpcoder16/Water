@@ -3,20 +3,9 @@ package conf
 import (
 	"errors"
 	"github.com/bpcoder16/Water/env"
-	"github.com/spf13/viper"
+	"github.com/bpcoder16/Water/utils"
 	"path/filepath"
 )
-
-func Parse(configPath string, configPtr interface{}) (err error) {
-	v := viper.New()
-	v.SetConfigFile(configPath)
-	v.SetConfigType("toml")
-	err = v.ReadInConfig()
-	if err == nil {
-		err = v.Unmarshal(configPtr)
-	}
-	return
-}
 
 type AppConfig struct {
 	ConfPath string
@@ -40,7 +29,7 @@ func ParseConfig(path string, configPtr *AppConfig) (err error) {
 	var confPath string
 	confPath, err = filepath.Abs(path)
 	if confPath, err = filepath.Abs(path); err == nil {
-		if err = Parse(confPath, configPtr); err == nil {
+		if err = utils.ParseJSONFile(confPath, configPtr); err == nil {
 			err = configPtr.Check()
 		}
 	}

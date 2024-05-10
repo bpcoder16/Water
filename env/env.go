@@ -3,6 +3,7 @@ package env
 import (
 	"fmt"
 	"log"
+	"os"
 )
 
 // 可以依据不同的运行等级来开启不同的调试功能、接口
@@ -35,6 +36,8 @@ type AppEnv interface {
 
 	// RunModeEnv 应用运行情况
 	RunModeEnv
+
+	RootPath() string
 }
 
 // AppNameEnv 应用名称
@@ -50,8 +53,9 @@ type RunModeEnv interface {
 var _ AppEnv = (*appEnv)(nil)
 
 type appEnv struct {
-	appName string
-	runMode string
+	appName  string
+	runMode  string
+	rootPath string
 }
 
 func (a *appEnv) AppName() string {
@@ -68,12 +72,20 @@ func (a *appEnv) RunMode() string {
 	return RunModeDebug
 }
 
+func (a *appEnv) RootPath() string {
+	return a.rootPath
+}
+
 func (a *appEnv) setAppName(name string) {
 	setValue(&a.appName, name, "AppName")
 }
 
 func (a *appEnv) setRunMode(mod string) {
 	setValue(&a.runMode, mod, "RunMode")
+}
+
+func (a *appEnv) setRootPath(path string) {
+	setValue(&a.rootPath, path, "RootPath")
 }
 
 func setValue(addr *string, value string, fieldName string) {
@@ -91,6 +103,9 @@ func New(opt Option) AppEnv {
 	if len(opt.RunMode) != 0 {
 		env.setRunMode(opt.RunMode)
 	}
+
+	rootPath, _ := os.Getwd()
+	env.rootPath = rootPath
 
 	return env
 }

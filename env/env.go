@@ -69,7 +69,7 @@ func (a *appEnv) RunMode() string {
 	if len(a.runMode) != 0 {
 		return a.runMode
 	}
-	return RunModeDebug
+	return RunModeRelease
 }
 
 func (a *appEnv) RootPath() string {

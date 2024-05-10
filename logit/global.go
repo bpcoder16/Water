@@ -16,18 +16,18 @@ func init() {
 	global.SetLogger(DefaultLogger)
 }
 
+func GetGlobalHelper() *Helper {
+	return global.helper
+}
+
 func (a *loggerAppliance) SetLogger(in Logger) {
 	a.lock.Lock()
 	defer a.lock.Unlock()
 	switch v := in.(type) {
 	case *Helper:
 		a.helper = v
-	case *Filter:
-		a.helper = NewHelper(v)
-	case *wLogger:
-		a.helper = NewHelper(NewFilter(v))
 	default:
-		a.helper = NewHelper(NewFilter(With(in)))
+		a.helper = NewHelper(v)
 	}
 }
 

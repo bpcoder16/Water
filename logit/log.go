@@ -30,18 +30,21 @@ func (c *wLogger) Log(level Level, keyValues ...interface{}) error {
 
 // With logger fields.
 func With(l Logger, kv ...interface{}) Logger {
-	c, ok := l.(*wLogger)
-	if !ok {
+	switch v := l.(type) {
+	case *Filter:
+		fv := *v
+		fv.logger = With(fv.logger, kv...)
+		return &fv
+	case *wLogger:
+		kvs := make([]interface{}, 0, len(v.prefix)+len(kv))
+		kvs = append(kvs, v.prefix...)
+		kvs = append(kvs, kv...)
+		nw := *v
+		nw.prefix = kvs
+		nw.hasValuer = containsValuer(kvs)
+		return &nw
+	default:
 		return &wLogger{logger: l, prefix: kv, hasValuer: containsValuer(kv), ctx: context.Background()}
-	}
-	kvs := make([]interface{}, 0, len(c.prefix)+len(kv))
-	kvs = append(kvs, c.prefix...)
-	kvs = append(kvs, kv...)
-	return &wLogger{
-		logger:    c.logger,
-		prefix:    kvs,
-		hasValuer: containsValuer(kvs),
-		ctx:       c.ctx,
 	}
 }
 

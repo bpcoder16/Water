@@ -66,6 +66,15 @@ func (h *Helper) WithContext(ctx context.Context) *Helper {
 	}
 }
 
+func (h *Helper) WithValues(kv ...interface{}) *Helper {
+	return &Helper{
+		msgKey:  h.msgKey,
+		logger:  With(h.logger, kv...),
+		sprint:  h.sprint,
+		sprintf: h.sprintf,
+	}
+}
+
 // Enabled returns true if the given level above this level.
 // It delegates to the underlying *Filter.
 func (h *Helper) Enabled(level Level) bool {

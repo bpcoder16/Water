@@ -7,6 +7,7 @@ import (
 	"github.com/bpcoder16/Water/libs/file/filerotatelogs"
 	"github.com/bpcoder16/Water/libs/log/zap"
 	"github.com/bpcoder16/Water/logit"
+	"github.com/bpcoder16/Water/middlewares"
 	"path"
 	"time"
 )
@@ -26,14 +27,24 @@ func initLoggers(ctx context.Context, _ *conf.AppConfig) {
 		logit.NewFilter(
 			logit.With(
 				zap.NewWaterLogger(debugInfoWriter, warnErrorFatalWriter),
-				logIdKey,
+				middlewares.LogIdKey,
 				func() logit.Valuer {
 					return func(ctx context.Context) interface{} {
-						logId := ctx.Value(logIdKey)
+						logId := ctx.Value(middlewares.LogIdKey)
 						if logId == nil {
 							return "notSetLogId"
 						}
 						return logId
+					}
+				}(),
+				logit.DefaultMessageKey,
+				func() logit.Valuer {
+					return func(ctx context.Context) interface{} {
+						msg := ctx.Value(logit.DefaultMessageKey)
+						if msg == nil {
+							return "Default"
+						}
+						return msg
 					}
 				}(),
 			),

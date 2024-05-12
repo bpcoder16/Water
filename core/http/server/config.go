@@ -1,9 +1,22 @@
-package http
+package server
 
 import (
 	"github.com/bpcoder16/Water/env"
 	"github.com/bpcoder16/Water/utils"
+	"github.com/gin-gonic/gin"
 )
+
+func init() {
+	loadHttpConfig()
+	switch env.RunMode() {
+	case env.RunModeRelease:
+		gin.SetMode(gin.ReleaseMode)
+	case env.RunModeTest:
+		gin.SetMode(gin.TestMode)
+	case env.RunModeDebug:
+		gin.SetMode(gin.DebugMode)
+	}
+}
 
 var config struct {
 	Server struct {

@@ -1,6 +1,7 @@
 package zap
 
 import (
+	"github.com/bpcoder16/Water/logit"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"io"
@@ -17,7 +18,7 @@ const (
 func getEncoderConfig() zapcore.EncoderConfig {
 	return zapcore.EncoderConfig{
 		TimeKey:       "time",
-		MessageKey:    "msg",
+		MessageKey:    logit.DefaultMessageKey,
 		LevelKey:      "level",
 		NameKey:       "logger",
 		CallerKey:     "caller",

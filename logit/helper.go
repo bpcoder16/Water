@@ -7,7 +7,7 @@ import (
 )
 
 // DefaultMessageKey default message key.
-var DefaultMessageKey = "msg"
+var DefaultMessageKey = "type"
 
 // HelperOption is Helper option.
 type HelperOption func(*Helper)

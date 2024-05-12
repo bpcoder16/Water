@@ -34,7 +34,7 @@ func (w responseWriter) Write(b []byte) (int, error) {
 	return w.ResponseWriter.Write(b)
 }
 
-func Logger() gin.HandlerFunc {
+func ApiLogger() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		begin := time.Now()
 

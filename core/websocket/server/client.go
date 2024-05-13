@@ -126,18 +126,19 @@ func (c *Client) ReadMessage() (messageType int, message []byte, err error) {
 	return
 }
 
-func (c *Client) WriteTextMessage(message []byte) {
+func (c *Client) WriteTextMessage(message []byte) (err error) {
 	defer func() {
 		if r := recover(); r != nil {
 			c.ErrorLog("sendTextMsgCh", websocket.TextMessage, message, errors.New("panic: textMsgCh is closed"))
 			c.Close()
+			err = errors.New("c.textMsgCh is closed")
 		}
 	}()
 	if !c.isClosed {
 		c.textMsgCh <- message
 		c.DebugLog("sendWriteCh", websocket.TextMessage, message, nil)
 	} else {
-		c.Close()
+		err = errors.New("c.textMsgCh is closed")
 	}
 
 	return
@@ -150,8 +151,6 @@ func (c *Client) writeMessage(messageType int, message []byte) (err error) {
 		_ = c.Conn.SetWriteDeadline(time.Now().Add(writeWait))
 		err = c.Conn.WriteMessage(messageType, message)
 		c.DebugLog("send", messageType, message, err)
-	} else {
-		c.Close()
 	}
 	return
 }

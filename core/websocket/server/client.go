@@ -165,6 +165,12 @@ func (c *Client) writePump() {
 	// 维持心跳
 	ticker := time.NewTicker(pingPeriod)
 	defer func() {
+		if r := recover(); r != nil {
+			c.logger.WithContext(c.ctx).ErrorW(
+				"function", "client.writePump",
+				"recover", r,
+			)
+		}
 		ticker.Stop()
 		c.Close()
 	}()
@@ -203,6 +209,12 @@ func (c *Client) writePump() {
 
 func (c *Client) readPump() {
 	defer func() {
+		if r := recover(); r != nil {
+			c.logger.WithContext(c.ctx).ErrorW(
+				"function", "client.readPump",
+				"recover", r,
+			)
+		}
 		c.Close()
 	}()
 

@@ -4,8 +4,10 @@ import (
 	"context"
 	"github.com/bpcoder16/Water/conf"
 	"github.com/bpcoder16/Water/logit"
+	"github.com/bpcoder16/Water/middlewares"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"os"
 )
 
 type Server struct {
@@ -31,10 +33,12 @@ func SetDefaultServer(s *Server) {
 
 func NewServer(_ context.Context, appConfig *conf.AppConfig) *Server {
 	s := &Server{
-		appConfig:   appConfig,
-		Engine:      gin.New(),
-		routers:     make([]Router, 0),
-		middlewares: make([]gin.HandlerFunc, 0),
+		appConfig: appConfig,
+		Engine:    gin.New(),
+		routers:   make([]Router, 0),
+		middlewares: []gin.HandlerFunc{
+			middlewares.RecoveryWithWriter(os.Stderr),
+		},
 	}
 
 	if DefaultServer == nil {

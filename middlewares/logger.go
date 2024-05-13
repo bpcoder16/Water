@@ -67,6 +67,27 @@ func ApiLogger() gin.HandlerFunc {
 	}
 }
 
+func WebsocketLogger() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		begin := time.Now()
+
+		ctx.Set(logit.DefaultMessageKey, "WebSocket")
+		ctx.Set(LogIdKey, uuid.New().String())
+
+		ctx.Next()
+
+		elapsed := time.Since(begin)
+
+		logit.Context(ctx).InfoW(
+			"connDuration", fmt.Sprintf("%.3fms", float64(elapsed.Nanoseconds())/1e6),
+			"clientIP", ctx.ClientIP(),
+			"action", "connect",
+			"header", filterHeader(ctx.Request.Header),
+			"statusCode", ctx.Writer.Status(),
+		)
+	}
+}
+
 func filterHeader(header http.Header) http.Header {
 	if env.RunMode() != env.RunModeRelease {
 		return header

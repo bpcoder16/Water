@@ -85,9 +85,13 @@ func (r *WebSocketRouter) handle(ctx *gin.Context) {
 		logit.Context(ctx).Warn("websocket upgrade fail:", err)
 		return
 	}
-	defer func() { _ = conn.Close() }()
 
 	client := NewClient(ctx, conn, r)
+	ClientManager().Store(client)
+	defer func() {
+		client.Close()
+		ClientManager().Delete(client)
+	}()
 
 	var g *gtask.Group
 	g, _ = gtask.WithContext(client.ctx)
@@ -101,9 +105,7 @@ func (r *WebSocketRouter) handle(ctx *gin.Context) {
 		return
 	})
 
-	if gErr := g.Wait(); gErr != nil {
-		client.Close()
-	}
+	_ = g.Wait()
 }
 
 func (r *WebSocketRouter) receiveTextMessage(c *Client, messageBytes []byte) (err error) {

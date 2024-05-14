@@ -2,9 +2,7 @@ package server
 
 import "sync"
 
-// clientManager TODO 启动定时服务去定时清理无效的 client
-var clientManager *Manager
-
+// Manager TODO 启动定时服务去定时清理无效的 client
 type Manager struct {
 	clients *sync.Map
 }

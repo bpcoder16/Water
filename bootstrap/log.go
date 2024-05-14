@@ -12,7 +12,7 @@ import (
 	"time"
 )
 
-func initLoggers(ctx context.Context, _ *conf.AppConfig) {
+func initLoggers(_ context.Context, _ *conf.AppConfig) {
 	debugInfoWriter := filerotatelogs.NewWriter(
 		path.Join(env.RootPath(), "log", env.AppName(), env.AppName()+".log"),
 		time.Duration(86400*5)*time.Second,

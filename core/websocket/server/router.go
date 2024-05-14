@@ -1,6 +1,7 @@
 package server
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"github.com/bpcoder16/Water/core/http/server"
@@ -29,21 +30,38 @@ func filterHeader(h http.Header) http.Header {
 	return h
 }
 
+type Task func(*Manager) (err error)
+
 type WebSocketRouter struct {
 	path                   string
 	textMessageControllers map[string]TextMessageController
 	middlewares            []gin.HandlerFunc
 	mu                     sync.RWMutex
+	ClientManager          *Manager
+	tasks                  []Task
+}
+
+func (r *WebSocketRouter) GetTasks() []func(context.Context) func() error {
+	tasks := make([]func(context.Context) func() error, 0)
+	for _, task := range r.tasks {
+		tasks = append(tasks, func(_ context.Context) func() error {
+			return func() error {
+				return task(r.ClientManager)
+			}
+		})
+	}
+	return tasks
 }
 
 func NewWebSocketRouter(path string) *WebSocketRouter {
-	clientManager = NewManager()
 	return &WebSocketRouter{
 		path:                   path,
 		textMessageControllers: make(map[string]TextMessageController),
 		middlewares: []gin.HandlerFunc{
 			middlewares.WebsocketLogger(),
 		},
+		ClientManager: NewManager(),
+		tasks:         make([]Task, 0),
 	}
 }
 
@@ -55,6 +73,10 @@ func (r *WebSocketRouter) RegisterHandler(s *server.Server) {
 	s.Engine.GET(r.path, append(r.middlewares, func(ctx *gin.Context) {
 		r.handle(ctx)
 	})...)
+}
+
+func (r *WebSocketRouter) AddTask(t Task) {
+	r.tasks = append(r.tasks, t)
 }
 
 func (r *WebSocketRouter) OnTextMessageController(scene string, controller TextMessageController) {
@@ -88,7 +110,7 @@ func (r *WebSocketRouter) handle(ctx *gin.Context) {
 	}
 
 	client := NewClient(ctx, conn, r)
-	client.manager = clientManager
+	client.manager = r.ClientManager
 	client.manager.Store(client)
 	defer func() {
 		client.Close()

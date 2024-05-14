@@ -1,6 +1,7 @@
 package server
 
 import (
+	"context"
 	"github.com/bpcoder16/Water/middlewares"
 	"github.com/gin-gonic/gin"
 	"math"
@@ -38,6 +39,11 @@ func (r *ApiRouter) RegisterHandler(s *Server) {
 	}
 }
 
+// GetTasks TODO 后续添加实现
+func (r *ApiRouter) GetTasks() []func(context.Context) func() error {
+	return []func(context.Context) func() error{}
+}
+
 func NewApiRouter() *ApiRouter {
 	r := &ApiRouter{
 		RouterGroup: RouterGroup{
@@ -46,7 +52,6 @@ func NewApiRouter() *ApiRouter {
 		},
 		registries: make([]apiRouterRegistry, 0),
 		middlewares: []gin.HandlerFunc{
-			middlewares.ApiLogger(),
 			middlewares.ApiLogger(),
 		},
 	}

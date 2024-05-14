@@ -2,19 +2,11 @@ package server
 
 import "sync"
 
+// clientManager TODO 启动定时服务去定时清理无效的 client
 var clientManager *Manager
 
 type Manager struct {
 	clients *sync.Map
-}
-
-func init() {
-	clientManager = NewManager()
-}
-
-// ClientManager TODO 启动定时服务去定时清理无效的 client
-func ClientManager() *Manager {
-	return clientManager
 }
 
 func NewManager() *Manager {

@@ -1,13 +1,15 @@
 package server
 
 //	{
-//		"path": "test",
-//		"payload": {
+//		"scene": "test",
+//		"sceneParameters": {
 //			"key1": 1234,
 //			"key2": "value"
 //		}
 //	}
 type ReceiveMessage struct {
-	Path    string                 `json:"path"`
-	Payload map[string]interface{} `json:"payload"`
+	Scene        string                 `json:"scene"`
+	SceneParams  map[string]interface{} `json:"sceneParams"`
+	Action       string                 `json:"action"`
+	ActionParams map[string]interface{} `json:"actionParams"`
 }

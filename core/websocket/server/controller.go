@@ -2,18 +2,26 @@ package server
 
 type TextMessageController interface {
 	Init(base TextMessageController)
-	ParsePayload(c *Client, payload map[string]interface{}) error
+	ParsePayload(c *Client, message ReceiveMessage) error
 	Process() error
 }
 
 type BaseTextMessageController struct {
-	Client  *Client
-	Payload map[string]interface{}
+	Client       *Client
+	Action       string
+	ActionParams map[string]interface{}
 }
 
-func (b *BaseTextMessageController) ParsePayload(client *Client, payload map[string]interface{}) (err error) {
+func (b *BaseTextMessageController) ParsePayload(client *Client, message ReceiveMessage) (err error) {
 	b.Client = client
-	b.Payload = payload
+	if len(message.Scene) > 0 {
+		b.Client.State.Scene = message.Scene
+	}
+	if len(message.SceneParams) > 0 {
+		b.Client.State.SceneParams = message.SceneParams
+	}
+	b.Action = message.Action
+	b.ActionParams = message.ActionParams
 	return
 }
 

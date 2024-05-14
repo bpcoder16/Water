@@ -37,6 +37,7 @@ type WebSocketRouter struct {
 }
 
 func NewWebSocketRouter(path string) *WebSocketRouter {
+	clientManager = NewManager()
 	return &WebSocketRouter{
 		path:                   path,
 		textMessageControllers: make(map[string]TextMessageController),
@@ -56,19 +57,19 @@ func (r *WebSocketRouter) RegisterHandler(s *server.Server) {
 	})...)
 }
 
-func (r *WebSocketRouter) OnTextMessageController(path string, controller TextMessageController) {
+func (r *WebSocketRouter) OnTextMessageController(scene string, controller TextMessageController) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	if r.textMessageControllers == nil {
 		r.textMessageControllers = make(map[string]TextMessageController)
 	}
-	r.textMessageControllers[path] = controller
+	r.textMessageControllers[scene] = controller
 }
 
-func (r *WebSocketRouter) GetTextMessageController(path string) (controller TextMessageController, err error) {
+func (r *WebSocketRouter) GetTextMessageController(scene string) (controller TextMessageController, err error) {
 	var exist bool
 	var controllerTemplate TextMessageController
-	controllerTemplate, exist = r.textMessageControllers[path]
+	controllerTemplate, exist = r.textMessageControllers[scene]
 	if !exist {
 		err = errors.New("textMessageController not register")
 		return
@@ -87,10 +88,10 @@ func (r *WebSocketRouter) handle(ctx *gin.Context) {
 	}
 
 	client := NewClient(ctx, conn, r)
-	ClientManager().Store(client)
+	client.manager = clientManager
+	client.manager.Store(client)
 	defer func() {
 		client.Close()
-		ClientManager().Delete(client)
 	}()
 
 	var g *gtask.Group
@@ -126,19 +127,22 @@ func (r *WebSocketRouter) receiveTextMessage(c *Client, messageBytes []byte) (er
 		return
 	}
 
-	c.logger.WithContext(c.ctx).DebugW("process", "parse text success", "receiveMessage", receiveMessage)
-
-	if len(receiveMessage.Path) == 0 {
-		c.WarnLog(
-			"receive",
-			websocket.TextMessage,
-			messageBytes,
-			errors.New("receiveMessage.Path is empty"),
-		)
-		return
+	c.Logger.WithContext(c.ctx).DebugW("process", "parse text success", "receiveMessage", receiveMessage)
+	if len(receiveMessage.Scene) == 0 {
+		if len(c.State.Scene) == 0 {
+			c.WarnLog(
+				"receive",
+				websocket.TextMessage,
+				messageBytes,
+				errors.New("receiveMessage.Scene is empty"),
+			)
+			return
+		}
+		// 如果没有传递，说明用户停留在当前场景
+		receiveMessage.Scene = c.State.Scene
 	}
 
-	controller, errC := r.GetTextMessageController(receiveMessage.Path)
+	controller, errC := r.GetTextMessageController(receiveMessage.Scene)
 	if errC != nil {
 		c.WarnLog(
 			"receive",
@@ -148,7 +152,7 @@ func (r *WebSocketRouter) receiveTextMessage(c *Client, messageBytes []byte) (er
 		)
 		return
 	}
-	errP := controller.ParsePayload(c, receiveMessage.Payload)
+	errP := controller.ParsePayload(c, receiveMessage)
 	if errP != nil {
 		c.WarnLog(
 			"receive",

@@ -37,9 +37,18 @@ type Client struct {
 	Conn      *websocket.Conn
 	textMsgCh chan []byte
 	isClosed  bool
+	manager   *Manager
+
+	// 客户端状态信息
+	State State
 
 	mu     sync.RWMutex
-	logger *logit.Helper
+	Logger *logit.Helper
+}
+
+type State struct {
+	Scene       string
+	SceneParams map[string]interface{}
 }
 
 func NewClient(ctx *gin.Context, conn *websocket.Conn, r *WebSocketRouter) *Client {
@@ -48,10 +57,13 @@ func NewClient(ctx *gin.Context, conn *websocket.Conn, r *WebSocketRouter) *Clie
 		router:    r,
 		Conn:      conn,
 		textMsgCh: make(chan []byte, 256),
-		logger: logit.Context(ctx).WithValues(
+		Logger: logit.Context(ctx).WithValues(
 			"clientIP", ctx.ClientIP(),
 			"header", ctx.Request.Header,
 		),
+		State: State{
+			SceneParams: make(map[string]interface{}),
+		},
 	}
 	return c
 }
@@ -80,13 +92,13 @@ func (c *Client) log(level, action string, messageType int, message []byte, err 
 
 	switch level {
 	case "DEBUG":
-		c.logger.WithContext(c.ctx).DebugW(newKeyValues...)
+		c.Logger.WithContext(c.ctx).DebugW(newKeyValues...)
 	case "INFO":
-		c.logger.WithContext(c.ctx).InfoW(newKeyValues...)
+		c.Logger.WithContext(c.ctx).InfoW(newKeyValues...)
 	case "WARN":
-		c.logger.WithContext(c.ctx).WarnW(newKeyValues...)
+		c.Logger.WithContext(c.ctx).WarnW(newKeyValues...)
 	case "ERROR":
-		c.logger.WithContext(c.ctx).ErrorW(newKeyValues...)
+		c.Logger.WithContext(c.ctx).ErrorW(newKeyValues...)
 	}
 	return
 }
@@ -115,6 +127,7 @@ func (c *Client) Close() {
 		c.isClosed = true
 		close(c.textMsgCh)
 	}
+	c.manager.Delete(c)
 }
 
 func (c *Client) ReadMessage() (messageType int, message []byte, err error) {
@@ -165,7 +178,7 @@ func (c *Client) writePump() {
 	ticker := time.NewTicker(pingPeriod)
 	defer func() {
 		if r := recover(); r != nil {
-			c.logger.WithContext(c.ctx).ErrorW(
+			c.Logger.WithContext(c.ctx).ErrorW(
 				"function", "client.writePump",
 				"recover", r,
 			)
@@ -209,7 +222,7 @@ func (c *Client) writePump() {
 func (c *Client) readPump() {
 	defer func() {
 		if r := recover(); r != nil {
-			c.logger.WithContext(c.ctx).ErrorW(
+			c.Logger.WithContext(c.ctx).ErrorW(
 				"function", "client.readPump",
 				"recover", r,
 			)
@@ -229,7 +242,7 @@ func (c *Client) readPump() {
 		mt, message, errR := c.ReadMessage()
 		if errR != nil {
 			if websocket.IsUnexpectedCloseError(errR, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
-				c.logger.WithContext(c.ctx).WarnW("WebsocketReadMsgFail", errR)
+				c.Logger.WithContext(c.ctx).WarnW("WebsocketReadMsgFail", errR)
 			}
 			break
 		}
@@ -253,7 +266,7 @@ func (c *Client) readPump() {
 		c.InfoLog("receive", mt, message, errR, "costTime", fmt.Sprintf("%.3fms", float64(elapsed.Nanoseconds())/1e6))
 
 		if errR != nil {
-			c.logger.WithContext(c.ctx).WarnW("WebsocketHandleFail", errR)
+			c.Logger.WithContext(c.ctx).WarnW("WebsocketHandleFail", errR)
 			break
 		}
 	}

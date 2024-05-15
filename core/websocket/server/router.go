@@ -43,6 +43,11 @@ type WebSocketRouter struct {
 
 func (r *WebSocketRouter) GetTasks() []func(context.Context) func() error {
 	tasks := make([]func(context.Context) func() error, 0)
+	tasks = append(tasks, func(_ context.Context) func() error {
+		return func() error {
+			return WebSocketMonitor(r.ClientManager)
+		}
+	})
 	for _, task := range r.tasks {
 		tasks = append(tasks, func(_ context.Context) func() error {
 			return func() error {

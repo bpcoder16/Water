@@ -15,12 +15,12 @@ import (
 func initLoggers(_ context.Context, _ *conf.AppConfig) {
 	debugInfoWriter := filerotatelogs.NewWriter(
 		path.Join(env.RootPath(), "log", env.AppName(), env.AppName()+".log"),
-		time.Duration(86400*5)*time.Second,
+		time.Duration(86400*30)*time.Second,
 		time.Duration(3600)*time.Second,
 	)
 	warnErrorFatalWriter := filerotatelogs.NewWriter(
 		path.Join(env.RootPath(), "log", env.AppName(), env.AppName()+".wf.log"),
-		time.Duration(86400*5)*time.Second,
+		time.Duration(86400*30)*time.Second,
 		time.Duration(3600)*time.Second,
 	)
 	logit.SetLogger(

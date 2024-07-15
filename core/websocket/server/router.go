@@ -198,6 +198,8 @@ func (r *WebSocketRouter) receiveTextMessage(c *Client, messageBytes []byte) (er
 		}
 		// 如果没有传递，说明用户停留在当前场景
 		receiveMessage.Scene = c.State.Scene
+		receiveMessage.SceneParams = c.State.SceneParams
+		receiveMessage.SID = c.State.SID
 	}
 
 	controller, errC := r.GetTextMessageController(receiveMessage.Scene)

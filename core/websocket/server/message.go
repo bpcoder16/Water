@@ -14,6 +14,7 @@ package server
 //	}
 type ReceiveMessage struct {
 	Scene        string                 `json:"scene"`
+	SID          string                 `json:"sid"`
 	SceneParams  map[string]interface{} `json:"sceneParams"`
 	Action       string                 `json:"action"`
 	ActionParams map[string]interface{} `json:"actionParams"`

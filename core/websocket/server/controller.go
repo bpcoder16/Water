@@ -20,6 +20,9 @@ func (b *BaseTextMessageController) ParsePayload(client *Client, message Receive
 	if len(message.SceneParams) > 0 {
 		b.Client.State.SceneParams = message.SceneParams
 	}
+	if len(message.SID) > 0 {
+		b.Client.State.SID = message.SID
+	}
 	b.Action = message.Action
 	b.ActionParams = message.ActionParams
 	return

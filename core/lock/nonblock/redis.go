@@ -34,3 +34,7 @@ func RedisLock(ctx context.Context, lockName string, deadLockExpireSecond time.D
 
 	return success
 }
+
+func RedisUnlock(ctx context.Context, lockName string) {
+	redis.GetDefaultRedis().Del(ctx, lockName)
+}

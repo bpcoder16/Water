@@ -11,6 +11,9 @@ type AppConfig struct {
 	ConfPath string
 
 	Env env.Option
+
+	LogPath         string
+	NotUseRotateLog bool
 }
 
 func (c *AppConfig) Check() (err error) {

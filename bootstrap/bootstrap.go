@@ -13,7 +13,7 @@ import (
 	"runtime"
 )
 
-func init() {
+func initHookStd(logPath string) {
 	log.SetOutput(os.Stdout)
 	log.SetFlags(log.LstdFlags | log.Lshortfile | log.Lmicroseconds)
 	// 重定向 stderr 和 stdout 到指定文件
@@ -22,11 +22,12 @@ func init() {
 	// 未 recover 的 panic 以及一些其他的 crash 信息都会输出到 stderr 里去,
 	// 所以应对 stderr 监控
 	// 对于线上应用，若不将 stderr 和 stdout 重定向，运行容器会将一般会将其重定向，
-	hookStd()
+	hookStd(logPath)
 	log.Println("stderr and stdout will redirect to log/std/")
 }
 
 func MustInit(ctx context.Context, conf *conf.AppConfig) {
+	initHookStd(conf.LogPath)
 	initLoggers(ctx, conf)
 	initConcurrencyManager(ctx)
 }

@@ -3,19 +3,25 @@ package bootstrap
 import (
 	"github.com/bpcoder16/Water/env"
 	"os"
+	"path"
 	"path/filepath"
 	"syscall"
 )
 
 // HookStd 同时劫持 Stderr 和 Stdout
-func hookStd() {
-	hookStderr()
-	hookStdout()
+func hookStd(logPath string) {
+	hookStderr(logPath)
+	hookStdout(logPath)
 }
 
 // hookStderr 劫持 Stderr
-func hookStderr() {
-	filename := env.RootPath() + "/log/std/stderr.log"
+func hookStderr(logPath string) {
+	var filename string
+	if len(logPath) > 0 {
+		filename = logPath + "/std/stderr.log"
+	} else {
+		filename = path.Join(env.RootPath(), "log/std/stderr.log")
+	}
 	dirname := filepath.Dir(filename)
 	if err := os.MkdirAll(dirname, 0755); err != nil {
 		panic("mkdirAll " + dirname + " failed")
@@ -31,8 +37,13 @@ func hookStderr() {
 }
 
 // hookStdout 劫持 Stdout
-func hookStdout() {
-	filename := env.RootPath() + "/log/std/stdout.log"
+func hookStdout(logPath string) {
+	var filename string
+	if len(logPath) > 0 {
+		filename = logPath + "/std/stdout.log"
+	} else {
+		filename = path.Join(env.RootPath(), "log/std/stdout.log")
+	}
 	dirname := filepath.Dir(filename)
 	if err := os.MkdirAll(dirname, 0755); err != nil {
 		panic("mkdirAll " + dirname + " failed")
